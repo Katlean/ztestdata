@@ -1,0 +1,7 @@
+include requirements*.txt
+include example_package/VERSION
+prune tests
+# exclude setup.py from subfolders
+global-exclude setup.py
+# re-include root setup.py
+include setup.py
