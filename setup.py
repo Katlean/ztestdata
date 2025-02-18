@@ -22,7 +22,7 @@ from setuptools.command.install_lib import install_lib
 CYTHONIZE = os.environ.get("CYTHONIZE", "False").lower() == "true"
 SKIP_CLEAN = os.environ.get("SKIP_CLEAN", "False").lower() == "true"
 
-MODULE_NAME = "example_package"
+MODULE_NAME = "ztestdata"
 
 # clean up old egg-info & temp build folder to prevent interfering with builds
 shutil.rmtree(Path(f"{MODULE_NAME}.egg-info"), True)
