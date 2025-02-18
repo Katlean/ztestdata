@@ -1,5 +1,4 @@
 stdPackageList = []
-cythonPackageList = []
 TWINE_IMAGE = 'zaml-zest-dev.jfrog.io/zamldocker/twine:latest'
 TWINE_RUN_ARGS = '--pull=always -v /tmp/tmp_release_passwd:/etc/passwd' // always pull the latest image and mount the passwd file
 
@@ -21,9 +20,6 @@ void publishAllPackages() {
     // Publish all packages to Artifactory
     echo 'Publishing packages to Artifactory'
     publishPackages(env.ARTIFACTORY_URL, stdPackageList)
-
-    echo 'Publishing Cython packages to Artifactory'
-    publishPackages(env.CYTHON_ARTIFACTORY_URL, cythonPackageList)
 }
 
 List<String> preparePackageList(List<String> packagePathList, String fileExt) {
@@ -86,7 +82,6 @@ pipeline {
                     // Remove existing virtualenv
                     sh '''
                         rm -rf .venv
-                        rm -rf .venv-cython
                     '''
                     // remove all dist folders
                     List<String> distList = findPaths(env.WORKSPACE, '*/dist', 'd')
@@ -130,7 +125,6 @@ pipeline {
                             set -e
                             python -m venv .venv-setup
                             . .venv-setup/bin/activate
-                            python -m pip install --upgrade pip setuptools build cython
                             '''
                             // using --no-isolation on build commands since we are already using a dedicated venv for building
                             // run all setup.py
@@ -146,7 +140,6 @@ pipeline {
                             }
 
                             stash includes: '**/dist/*.tar.gz', name: 'package'
-                            stash includes: '**/dist/*.whl', name: 'cython-package'
                         }
                     }
                 }
@@ -159,19 +152,6 @@ pipeline {
                             . .venv/bin/activate
                             python -m pip install --upgrade pip setuptools
                             PKG_NAME=$(ls dist/*.tar.gz)
-                            pip install --no-cache-dir $PKG_NAME[all,dev]
-                        '''
-                    }
-                }
-                stage('Setup Cython venv') {
-                    steps {
-                        // copy the venv, uninstall the sdist, and install the built wheel (dist/*.whl)
-                        sh '''
-                            set -e
-                            cp -r .venv .venv-cython
-                            . .venv-cython/bin/activate
-                            pip uninstall --no-cache-dir -y $PACKAGE_NAME
-                            PKG_NAME=$(ls dist/*.whl)
                             pip install --no-cache-dir $PKG_NAME[all,dev]
                         '''
                     }
@@ -204,25 +184,6 @@ pipeline {
                                 '''
                             }
                         }
-                        stage('Unit-cython') {
-                            steps {
-                                sh '''
-                                    . .venv-cython/bin/activate
-                                    # python -m in pytest will add the current directory to the path, causing pytest to import
-                                    # the local module rather than the installed module
-                                    pytest -vv --color=yes --import-mode=importlib tests/unit
-                                '''
-                            }
-                        }
-                        stage('Integration-cython') {
-                            steps {
-                                sh '''
-                                    . .venv-cython/bin/activate
-                                    # python -m in pytest will add the current directory to the path, causing pytest to import
-                                    # the local module rather than the installed module
-                                    pytest -vv --color=yes --import-mode=importlib tests/integration
-                                '''
-                            }
                         }
                     }
                 }
@@ -241,16 +202,11 @@ pipeline {
                         script {
                             // find all built packages
                             String stdFileExtension = 'tar.gz'
-                            String cythonFileExtension = 'whl'
 
                             List<String> builtstdPackageList = findPaths(env.WORKSPACE, "*/dist/*.$stdFileExtension", 'f')
-                            List<String> builtCythonPackageList = findPaths(env.WORKSPACE, "*/dist/*.$cythonFileExtension", 'f')
-
                             // prepare the package list for publishing
                             echo 'Preparing package list for publishing'
                             stdPackageList = preparePackageList(builtstdPackageList, stdFileExtension)
-                            echo 'Preparing Cython package list for publishing'
-                            cythonPackageList = preparePackageList(builtCythonPackageList, cythonFileExtension)
                         }
                     }
                 }
@@ -275,7 +231,6 @@ pipeline {
                     steps {
                         script {
                             unstash 'package'
-                            unstash 'cython-package'
                             publishAllPackages()
                         }
                     }
@@ -314,7 +269,6 @@ pipeline {
                                         echo 'INFO: Skip pushing package artifact, as version already exists'
                                     } else {
                                         unstash 'package'
-                                        unstash 'cython-package'
                                         publishAllPackages()
                                     }
                                 }
