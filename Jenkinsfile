@@ -62,9 +62,9 @@ def trigger_image_build_workflow(String workflowUrl, String imageBuildName, Stri
 pipeline {
     agent any
     environment {
-        REPONAME = 'example-package'
-        SOURCE_PATH = 'example_package'
-        PACKAGE_NAME = 'example-package'
+        REPONAME = 'ztestdata'
+        SOURCE_PATH = 'ztestdata'
+        PACKAGE_NAME = 'ztestdata'
         GIT_REPO_URL = "git@github.com:Katlean/${REPONAME}.git"
         ARTIFACTORY_CREDS = credentials('build-push-user-artifactory')
         ARTIFACTORY_PATH = 'zaml.jfrog.io/zaml/api/pypi/zest_pypi'
