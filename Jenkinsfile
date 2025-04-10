@@ -70,7 +70,7 @@ pipeline {
         ARTIFACTORY_PATH = 'zaml.jfrog.io/zaml/api/pypi/zest_pypi'
         ARTIFACTORY_URL = "https://$ARTIFACTORY_PATH"
         PIP_INDEX_URL = "https://$ARTIFACTORY_CREDS_USR:$ARTIFACTORY_CREDS_PSW@$ARTIFACTORY_PATH/simple"
-        PACKAGE_VERSION = sh(returnStdout: true, script: "cat $SOURCE_PATH/VERSION").trim()
+        PACKAGE_VERSION = sh(returnStdout: true, script: "cat $SOURCE_PATH/.VERSION").trim()
         RELEASE_TAG = "v${env.PACKAGE_VERSION}"
         GITHUB_DEPLOY_APP_CREDS = credentials('zest-deploy-configuration-app')
         GITHUB_DEPLOY_ACCESS_TOKEN = "${env.GITHUB_DEPLOY_APP_CREDS_PSW}"
