@@ -19,22 +19,17 @@ from pathlib import Path
 from setuptools import Extension, find_packages, setup
 from setuptools.command.install_lib import install_lib
 
-CYTHONIZE = os.environ.get("CYTHONIZE", "False").lower() == "true"
-SKIP_CLEAN = os.environ.get("SKIP_CLEAN", "False").lower() == "true"
-
 MODULE_NAME = "ztestdata"
 
 # clean up old egg-info & temp build folder to prevent interfering with builds
 shutil.rmtree(Path(f"{MODULE_NAME}.egg-info"), True)
-if CYTHONIZE and not SKIP_CLEAN:
-    shutil.rmtree(Path("build"), True)
 
 current_directory = Path(__file__).parent
 
 with open(current_directory / "requirements.txt", "r", encoding="utf-8") as fp:
     REQUIRED = fp.read().splitlines()
 
-VERSION_FILE = current_directory / MODULE_NAME / "VERSION"
+VERSION_FILE = current_directory / MODULE_NAME / ".VERSION"
 
 with open(VERSION_FILE, "r", encoding="utf-8") as f:
     __version__ = f.read().strip()
@@ -53,43 +48,6 @@ extras_require["all"] = all_extras_require
 
 ext_modules = []
 
-if CYTHONIZE:
-    import Cython.Compiler.Options
-    from Cython.Build import cythonize
-
-    cython_module = Extension(f"{MODULE_NAME}/*", [f"{MODULE_NAME}/**/*.py"])
-
-    # Disable the inclusion of docstrings in the generated code
-    Cython.Compiler.Options.docstrings = False
-
-    cython_module.cython_c_in_temp = True
-    ext_modules = cythonize(
-        [cython_module],
-        compiler_directives={"language_level": "3", "emit_code_comments": False},
-        build_dir="build",
-    )
-
-
-class InstallLibFilter(install_lib):
-    """override class to keep python wheel free of .py files that have associated .so files"""
-
-    def get_exclusions(self):
-        exclusions: set = super().get_exclusions()
-
-        # ext_suffix is platform-specific .so suffix, like '.cpython-310-darwin.so'
-        ext_suffix = sysconfig.get_config_var("EXT_SUFFIX")
-
-        build_dir = Path(self.build_dir)
-
-        for py_file in build_dir.glob("**/*.py"):
-            if py_file.with_suffix(ext_suffix).exists():
-                # if an .so file exists for the .py file, exclude the .py file
-                # using os.path.join to get same path forming behavior as install_lib
-                exclusions.add(os.path.join(self.install_dir, py_file.relative_to(build_dir)))
-
-        return exclusions
-
-
 setup(
     name="example-package",
     version=__version__,
@@ -102,5 +60,5 @@ setup(
     zip_safe=False,
     include_package_data=True,
     ext_modules=ext_modules,
-    cmdclass={"install_lib": InstallLibFilter if CYTHONIZE else install_lib},
+    cmdclass={"install_lib": install_lib},
 )
