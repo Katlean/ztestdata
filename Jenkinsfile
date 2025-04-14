@@ -125,6 +125,7 @@ pipeline {
                             set -e
                             python -m venv .venv-setup
                             . .venv-setup/bin/activate
+                            python -m pip install --upgrade pip setuptools build
                             '''
                             // using --no-isolation on build commands since we are already using a dedicated venv for building
                             // run all setup.py
