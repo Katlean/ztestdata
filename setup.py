@@ -11,9 +11,6 @@ from setuptools import setup, find_packages
 with open('requirements.txt') as fp:
     REQUIRED = fp.read()
 
-with open('requirements_full.txt') as fp:
-    REQUIRED_FULL = fp.read()
-
 
 VERSION_FILE = os.path.join(os.path.dirname(__file__), 'zaml/VERSION')
 with open(VERSION_FILE) as f:
@@ -27,7 +24,6 @@ setup(name='ztestdata',
       author_email='core-modeling@zestfinance.com',
       packages=find_packages(),
       install_requires=REQUIRED,
-      extras_require={"full":REQUIRED_FULL},
       python_requires='>=3.7',
       zip_safe=False,
       include_package_data=True
