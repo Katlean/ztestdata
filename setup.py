@@ -12,7 +12,7 @@ with open('requirements.txt') as fp:
     REQUIRED = fp.read()
 
 
-VERSION_FILE = os.path.join(os.path.dirname(__file__), 'zaml/VERSION')
+VERSION_FILE = os.path.join(os.path.dirname(__file__), 'ztestdata/.VERSION')
 with open(VERSION_FILE) as f:
     __version__ = f.read().strip()
 
