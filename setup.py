@@ -7,12 +7,13 @@
 ##
 import os
 from setuptools import setup, find_packages
+from pathlib import Path
 
 with open('requirements.txt') as fp:
     REQUIRED = fp.read()
-
-
-VERSION_FILE = os.path.join(os.path.dirname(__file__), 'ztestdata/.VERSION')
+MODULE_NAME = "ztestdata"
+current_directory = Path(__file__).parent
+VERSION_FILE = current_directory / MODULE_NAME / ".VERSION"
 with open(VERSION_FILE) as f:
     __version__ = f.read().strip()
 
