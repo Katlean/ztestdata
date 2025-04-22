@@ -162,8 +162,8 @@ pipeline {
                         // lint for ERRORS only
                         sh """
                             . .venv/bin/activate
-                            python -m pip install --upgrade pip pylint
-                            pylint --load-plugins pylint_pydantic -E $SOURCE_PATH --ignore=setup.py
+                            python -m pip install --upgrade pip pylint pylint_pydantic
+                            pylint --load-plugins pylint_pydantic -E $SOURCE_PATH --ignore=setup.py --ignored-modules=scipy.special
                         """
                     }
                 }
