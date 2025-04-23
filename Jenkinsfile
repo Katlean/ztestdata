@@ -173,6 +173,7 @@ pipeline {
                             steps {
                                 sh """
                                     . .venv/bin/activate
+                                    python -m pip install --upgrade pip pytest
                                     coverage run -m --source=$SOURCE_PATH pytest --color=yes --verbose ./tests/unit
                                     coverage report -mi
                                 """
@@ -182,6 +183,7 @@ pipeline {
                             steps {
                                 sh '''
                                     . .venv/bin/activate
+                                    python -m pip install --upgrade pip pytest
                                     pytest -vv --color=yes tests/integration
                                 '''
                             }
